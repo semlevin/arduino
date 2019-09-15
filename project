@@ -1,9 +1,115 @@
-void setup() {
-  // put your setup code here, to run once:
 
+#define BUTTON1 17                                      //  Определяем вывод 1-й кнопки
+#define BUTTON2 19                                      //  Определяем вывод 2-й кнопки
+#define BUTTON3 21                                      //  Определяем вывод 3-й кнопки
+                                                        //
+#define LED1    16                                      //  Определяем вывод 1-го светодиода
+#define LED2    18                                      //  Определяем вывод 2-го светодиода
+#define LED3    20  
+
+#define START_BUTTON 17
+#define STOP_BUTTON 19
+#define SOLENOID 11
+
+                                                        //
+bool LED1_STATE = LOW;                                  //  Обозначаем состояние 1-го светодиода
+bool LED2_STATE = LOW;                                  //  Обозначаем состояние 2-го светодиода
+bool LED3_STATE = LOW;
+
+#define OFF 0
+#define ON 1
+
+//время выхода
+#define TIME_ON 400
+#define TIME_OFF 400
+#define TIME_OFF_MIN 200
+#define TIME_OFF_STEP 50
+
+// состяние выхода
+#define SOLENOID_OFF 0
+#define SOLENOID_ON 1
+#define SOLENOID_DELAY 2
+
+unsigned long timing;
+bool WorkMode = OFF;
+short SolenoidState;
+short TimeOff = TIME_OFF;
+short ScorePress = 0;
+
+
+void setup() {
+  Serial.begin(9600);
+  
+  pinMode(START_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
+  pinMode(STOP_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
+  pinMode(BUTTON3, INPUT);  
+  pinMode(SOLENOID, OUTPUT);
+
+  SolenoidState = SOLENOID_OFF;
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
+// обработчик кнопки старт
+// проверка кнопки старта на ее нажатость, если она нажата. то режим работы устанавливаем в ON
+  if (digitalRead(START_BUTTON)) 
+    WorkMode = ON;
+    
+// обработчик кнопки стоп
+// проверка кнопки стоп на ее нажатость, если она нажата. то режим работы устанавливаем в OFF
+  if (digitalRead(STOP_BUTTON)) 
+    WorkMode = OFF;
+
+// обработчик кнопки частоты
+  if (digitalRead(BUTTON3)){
+    delay(100);
+    if (digitalRead(BUTTON3)){
+      TimeOff -= TIME_OFF_STEP;
+      if (TimeOff < TIME_OFF_MIN)
+        TimeOff = TIME_OFF;
+    }
+  }
+
+// обработчик выхода 
+  if (WorkMode == ON){
+    switch(SolenoidState){
+      case SOLENOID_OFF:
+         digitalWrite(SOLENOID, 1);
+         digitalWrite(LED3, 1);
+         timing = millis();
+         SolenoidState = SOLENOID_ON;
+         ScorePress++;
+         Serial.println("ON");
+         Serial.print(ScorePress);
+         break;
+
+      case SOLENOID_ON:
+        if (millis()- timing > TIME_ON) {
+          digitalWrite(SOLENOID, 0);
+          digitalWrite(LED3, 0);
+          timing = millis();
+          SolenoidState = SOLENOID_DELAY;
+          Serial.println("DELAY");
+        }
+        break;
+
+       case SOLENOID_DELAY:
+        if (millis()- timing > TimeOff) {
+          digitalWrite(SOLENOID, 1);
+          digitalWrite(LED3, 1);
+          timing = millis();
+          SolenoidState = SOLENOID_ON;
+          ScorePress++;
+          Serial.print(ScorePress);
+          Serial.println("ON");
+        }
+        break;
+    }
+  }
+  else {
+    digitalWrite(SOLENOID, 0);
+    digitalWrite(LED3, 0);
+    SolenoidState = SOLENOID_OFF;
+    Serial.println("OFF");
+  }
 }
