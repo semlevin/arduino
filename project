@@ -43,9 +43,9 @@ short ScorePress = 0;
 void setup() {
  
   Serial.begin(9600);
+  
   // присваваем переменной TimeOff значение из EEPROM
   TimeOff = EEPROM.read(Byte_0);
-
   
   pinMode(START_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
   pinMode(STOP_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
@@ -56,9 +56,6 @@ void setup() {
 }
 
 void loop() {
-
- 
-
 // обработчик кнопки старт
 // проверка кнопки старта на ее нажатость, если она нажата. то режим работы устанавливаем в ON
   if (digitalRead(START_BUTTON)) 
@@ -93,7 +90,6 @@ void loop() {
          Serial.println("ON");
          Serial.print("Score Press");
          Serial.print(ScorePress);
-         
          break;
 
       case SOLENOID_ON:
@@ -103,7 +99,6 @@ void loop() {
           timing = millis();
           SolenoidState = SOLENOID_DELAY;
           Serial.println("DELAY");
-        
         }
         break;
 
