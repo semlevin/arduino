@@ -1,4 +1,6 @@
 
+#include <EEPROM.h>
+
 #define BUTTON1 17                                      //  Определяем вывод 1-й кнопки
 #define BUTTON2 19                                      //  Определяем вывод 2-й кнопки
 #define BUTTON3 21                                      //  Определяем вывод 3-й кнопки
@@ -11,6 +13,7 @@
 #define STOP_BUTTON 19
 #define SOLENOID 11
 
+#define Byte_0 0
                                                         //
 bool LED1_STATE = LOW;                                  //  Обозначаем состояние 1-го светодиода
 bool LED2_STATE = LOW;                                  //  Обозначаем состояние 2-го светодиода
@@ -20,8 +23,8 @@ bool LED3_STATE = LOW;
 #define ON 1
 
 //время выхода
-#define TIME_ON 400
-#define TIME_OFF 400
+#define TIME_ON 500
+#define TIME_OFF 500
 #define TIME_OFF_MIN 200
 #define TIME_OFF_STEP 50
 
@@ -38,7 +41,11 @@ short ScorePress = 0;
 
 
 void setup() {
+ 
   Serial.begin(9600);
+  // присваваем переменной TimeOff значение из EEPROM
+  TimeOff = EEPROM.read(Byte_0);
+
   
   pinMode(START_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
   pinMode(STOP_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
@@ -49,6 +56,8 @@ void setup() {
 }
 
 void loop() {
+
+ 
 
 // обработчик кнопки старт
 // проверка кнопки старта на ее нажатость, если она нажата. то режим работы устанавливаем в ON
@@ -67,6 +76,8 @@ void loop() {
       TimeOff -= TIME_OFF_STEP;
       if (TimeOff < TIME_OFF_MIN)
         TimeOff = TIME_OFF;
+        EEPROM.write(Byte_0, TimeOff);
+        Serial.println(TimeOff);
     }
   }
 
@@ -80,7 +91,9 @@ void loop() {
          SolenoidState = SOLENOID_ON;
          ScorePress++;
          Serial.println("ON");
+         Serial.print("Score Press");
          Serial.print(ScorePress);
+         
          break;
 
       case SOLENOID_ON:
@@ -90,6 +103,7 @@ void loop() {
           timing = millis();
           SolenoidState = SOLENOID_DELAY;
           Serial.println("DELAY");
+        
         }
         break;
 
@@ -100,7 +114,8 @@ void loop() {
           timing = millis();
           SolenoidState = SOLENOID_ON;
           ScorePress++;
-          Serial.print(ScorePress);
+          Serial.print("Score Press ");
+          Serial.println(ScorePress);
           Serial.println("ON");
         }
         break;
@@ -113,3 +128,5 @@ void loop() {
     Serial.println("OFF");
   }
 }
+
+
