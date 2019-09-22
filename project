@@ -14,7 +14,7 @@
 #define SOLENOID 11
 
 #define Byte_0 0
-                                                        //
+
 bool LED1_STATE = LOW;                                  //  Обозначаем состояние 1-го светодиода
 bool LED2_STATE = LOW;                                  //  Обозначаем состояние 2-го светодиода
 bool LED3_STATE = LOW;
@@ -41,10 +41,18 @@ short ScorePress = 0;
 
 
 void setup() {
-
   Serial.begin(9600);
+  
   // присваваем переменной TimeOff значение из EEPROM
   TimeOff = EEPROM.read(Byte_0);
+  // проверка TimeOff на верность данных, если TimeOff меньше 200, то переменная становится равна 250
+  if (TimeOff < TIME_OFF_MIN){
+    TimeOff = 250;
+  }
+  // проверка TimeOff на верность данных, если TimeOff больше 500, то переменная становится равна 250
+  if (TimeOff > TIME_OFF){
+    TimeOff = 250;
+  }
   
   pinMode(START_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
   pinMode(STOP_BUTTON, INPUT);                              //  Устанавливаем режим работы выводов
@@ -55,6 +63,9 @@ void setup() {
 }
 
 void loop() {
+
+ 
+
 // обработчик кнопки старт
 // проверка кнопки старта на ее нажатость, если она нажата. то режим работы устанавливаем в ON
   if (digitalRead(START_BUTTON)) 
@@ -72,9 +83,9 @@ void loop() {
       TimeOff -= TIME_OFF_STEP;
       if (TimeOff < TIME_OFF_MIN)
         TimeOff = TIME_OFF;
-        EEPROM.write(Byte_0, TimeOff);
         Serial.println(TimeOff);
     }
+     EEPROM.write(Byte_0, TimeOff);
   }
 
 // обработчик выхода 
