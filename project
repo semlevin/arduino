@@ -41,9 +41,8 @@ short ScorePress = 0;
 
 
 void setup() {
- 
+
   Serial.begin(9600);
-  
   // присваваем переменной TimeOff значение из EEPROM
   TimeOff = EEPROM.read(Byte_0);
   
