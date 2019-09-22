@@ -24,7 +24,7 @@ bool LED3_STATE = LOW;
 
 //время выхода
 #define TIME_ON 500
-#define TIME_OFF 500
+#define TIME_OFF_MAX 500
 #define TIME_OFF_MIN 200
 #define TIME_OFF_STEP 50
 
